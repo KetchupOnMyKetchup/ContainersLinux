@@ -1,0 +1,40 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: demowebapi
+spec:
+  selector:
+    app: demowebapi
+    tier: backend
+  ports:
+    - protocol: TCP
+      port: 9000
+      targetPort: 9000
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: demowebapi
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: demowebapi
+        tier: backend
+        track: stable
+    spec:
+      containers:
+        - name: demowebapi
+          image: "yogurtthecat.azurecr.io/demo-webapi:v2"
+          ports:
+            - name: http
+              containerPort: 9000
+      imagePullSecrets:
+        - name: acr
